@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: bangfkr
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: wallet
+    container_name: walletapp
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - laravelwallet
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: dev
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql:/docker-entrypoint-initdb.d
+    networks:
+      - laravelwallet
+  nginx:
+    image: nginx:alpine
+    container_name: walletserver
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - laravelwallet
+networks:
+  laravelwallet:
+    driver: bridge
+volumes:
+  dbdata:
+    driver: local
