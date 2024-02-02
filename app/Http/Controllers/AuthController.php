@@ -29,6 +29,8 @@ class AuthController extends Controller
     public function store(Request $request)
     {
 
+        // dd($request->method());
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -39,6 +41,7 @@ class AuthController extends Controller
         if (auth()->attempt($credentials, $request->remember)) {
             return redirect()->intended("transaction");
         }
+        
 
         return redirect('login')->with('error', 'Login details are not valid');
 
